@@ -1,0 +1,26 @@
+1.- Explain the difference between Unit Tests, Integration Tests, and Acceptance Tests.
+  : Unit tests are to verify pieces of code, integration tests are used to verify that one component communicates correctly with another,
+    and acceptance tests are used to verify that the code meets business specifications.
+2.- How does SCRUM work?
+  : Works with a team that internalizes the agile culture and devops
+3.- Explain how Test-Driven Development (TDD) works and why it is important to use it.
+  : First, a unit test is written and executed, if the minimum code necessary for the test to pass (refactoring) fails,
+    then more test scenarios are added and the cycle is repeated until a high level of quality is reached.
+4.- What is the difference between a monolithic application and an application based in
+microservices?
+  : Monolithic is a type of old architecture where all the modules of a system shared a database and an application server,
+    in microservices the idea is to granulate as little as possible to avoid dependencies and make maintenance faster, consequently it becomes more complex
+5.- What are the main DevOps principles ?
+  : Automate all development processes as much as possible construction, testing, deployment, etc.
+6.- What are your 3 favorite open source projects and why ?
+  : Linux: it was my first approach to the world of technology
+    Git: I always wanted to know how this engine works inside.
+    Apollo 11: it is not open source but I found it very interesting that they released the code to be able to see it
+
+7.- List 3 books that have impacted and improved your professional career as a Software
+Engineer
+  : Clean Code
+    Refactoring
+    Head First Design Patterns
+8. When you finish, create a commit and push your changes
+  : Ok
