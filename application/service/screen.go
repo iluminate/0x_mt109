@@ -1,6 +1,7 @@
 package service
 
 import (
+	"0x_mt109/application/helper"
 	"0x_mt109/application/model"
 )
 
@@ -11,52 +12,44 @@ func NewScreenService() *ScreenService {
 }
 
 func (s *ScreenService) RemoveBlackPixel(screen model.Screen) model.Screen {
-	//fmt.Println(screen.String())
 	for i := 1; i < screen.GetLimitRows(); i++ {
 		for j := 1; j < screen.GetLimitCols(); j++ {
 			pixel := screen.Pixels[i][j]
-			if pixel == 0 {
+			if pixel == helper.PixelOff {
 				continue
 			}
-			screen.ResetReview()
+			screen.ResetPixelsRevised()
 			if screen.Point(i, j).HaveLink() && !touchEnd(screen.Pixels, i, j, false) {
-				screen.Pixels[i][j] = 2
-				continue
+				screen.Pixels[i][j] = helper.PixelFading
 			} else {
-				screen.Pixels[i][j] = -1
-				continue
+				screen.Pixels[i][j] = helper.PixelTurning
 			}
 		}
-		//fmt.Printf("%d:\n%s\n", i, screen.String())
 	}
-
 	for i := 1; i < screen.GetLimitRows(); i++ {
 		for j := 1; j < screen.GetLimitCols(); j++ {
-			if screen.Pixels[i][j] == 2 {
-				screen.Pixels[i][j] = 0
+			if screen.Pixels[i][j] == helper.PixelFading {
+				screen.Pixels[i][j] = helper.PixelOff
 			}
-			if screen.Pixels[i][j] == -1 {
-				screen.Pixels[i][j] = 1
+			if screen.Pixels[i][j] == helper.PixelTurning {
+				screen.Pixels[i][j] = helper.PixelOn
 			}
 		}
 	}
-
 	return screen
 }
 
-func touchEnd(matriz [][]int, x int, y int, touch bool) bool {
-	//fmt.Printf("(%d,%d): touch(%v)\n", x, y, touch)
-	if y > 0 && y < len(matriz[0])-1 && x > 0 && x < len(matriz)-1 {
-		//Flag Revisado (3)
-		matriz[x][y] = 3
-		if matriz[x][y-1] == 1 {
-			touch = touchEnd(matriz, x, y-1, true)
-		} else if matriz[x][y+1] == 1 {
-			touch = touchEnd(matriz, x, y+1, true)
-		} else if matriz[x-1][y] == 1 {
-			touch = touchEnd(matriz, x-1, y, true)
-		} else if matriz[x+1][y] == 1 {
-			touch = touchEnd(matriz, x+1, y, true)
+func touchEnd(matrizInput [][]int, x int, y int, touch bool) bool {
+	if y > 0 && y < len(matrizInput[0])-1 && x > 0 && x < len(matrizInput)-1 {
+		matrizInput[x][y] = helper.PixelRevised
+		if matrizInput[x][y-1] == helper.PixelOn {
+			touch = touchEnd(matrizInput, x, y-1, true)
+		} else if matrizInput[x][y+1] == helper.PixelOn {
+			touch = touchEnd(matrizInput, x, y+1, true)
+		} else if matrizInput[x-1][y] == helper.PixelOn {
+			touch = touchEnd(matrizInput, x-1, y, true)
+		} else if matrizInput[x+1][y] == helper.PixelOn {
+			touch = touchEnd(matrizInput, x+1, y, true)
 		} else {
 			touch = false
 		}

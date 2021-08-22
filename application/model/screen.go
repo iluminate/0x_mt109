@@ -1,6 +1,7 @@
 package model
 
 import (
+	"0x_mt109/application/helper"
 	"strconv"
 	"strings"
 )
@@ -32,17 +33,17 @@ func (s Screen) HaveLink() bool {
 		s.Pixels[s.x+1][s.y] == -1 {
 		return false
 	}
-	return s.Pixels[s.x][s.y-1] > 0 ||
-		s.Pixels[s.x][s.y+1] > 0 ||
-		s.Pixels[s.x-1][s.y] > 0 ||
-		s.Pixels[s.x+1][s.y] > 0
+	return s.Pixels[s.x][s.y-1] > helper.PixelOff ||
+		s.Pixels[s.x][s.y+1] > helper.PixelOff ||
+		s.Pixels[s.x-1][s.y] > helper.PixelOff ||
+		s.Pixels[s.x+1][s.y] > helper.PixelOff
 }
 
-func (s Screen) ResetReview() {
+func (s Screen) ResetPixelsRevised() {
 	for i := 1; i < s.GetLimitRows(); i++ {
 		for j := 1; j < s.GetLimitCols(); j++ {
-			if s.Pixels[i][j] == 3 {
-				s.Pixels[i][j] = 1
+			if s.Pixels[i][j] == helper.PixelRevised {
+				s.Pixels[i][j] = helper.PixelOn
 			}
 		}
 	}
@@ -54,7 +55,7 @@ func (s Screen) String() string {
 		str = str + "[ "
 		row := make([]string, 0)
 		for j := 0; j < len(s.Pixels[0]); j++ {
-			row = append(row, strconv.Itoa(int(s.Pixels[i][j])))
+			row = append(row, strconv.Itoa(s.Pixels[i][j]))
 		}
 		str = str + strings.Join(row, ", ")
 		str = str + " ]\n"
