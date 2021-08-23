@@ -1,58 +1,80 @@
 <template>
   <div>
-    <div v-for="row in data.routes" class="maptag-card maptag-bleft-blue">
-      <div v-for="col in cols" class="maptag-row">
-        <span>{{ col.label }}</span>
-        <br/>
-        <p :class="col.class">{{ row[col.key] || "-" }}</p>
-      </div>
+    <div v-for="row in routes" :key="row.id" :class="['maptag-card', getColor(row.status)]">
+      <CardRoute title="Ruta" :data="row.id" />
+      <CardRoute title="Conductor" :data="row.driver_name" />
+      <CardRoute title="Creada" :data="row.created_at" />
+      <CardRoute title="Inicio" :data="row.started_at" />
+      <CardRoute title="Terminó" :data="row.ended_at" />
+      <CardRoute title="Entregas" :data="row.deliveries" />
+      <CardRoute title="" :data="getTranslate(row.status)" :classObject="getColor(row.status)" />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script lang="js">
+import Vue from 'vue';
+import { MESES } from '@/constants/'
 
 export default Vue.extend({
   layout: 'default',
   data() {
     return {
-      cols: [
-        { label: "Ruta", key: "id", size: 1, class: "" },
-        { label: "Conductor", key: "driver_name", size: 3, class: "" },
-        { label: "Creada", key: "created_at", size: 2, class: "" },
-        { label: "Inicio", key: "started_at", size: 1, class: "" },
-        { label: "Terminó", key: "ended_at", size: 1, class: "" },
-        { label: "Entregas", key: "deliveries", size: 1, class: "" },
-        { label: "", key: "status", size: 1, class: "tag-blue" }
-      ],
-      data: {
-        "routes":[
-          {
-            "id":1,
-            "driver_name":"Ali",
-            "created_at":"2020-11-03T20:53:31-06:00",
-            "deliveries":0,
-            "status":"pending"
-          },
-          {
-            "id":2,
-            "driver_name":"Sam",
-            "created_at":"2020-12-01T00:09:07-06:00",
-            "deliveries":0,
-            "status":"pending"
-          },
-          {
-            "id":3,
-            "driver_name":"Kiley",
-            "created_at":"2020-11-22T21:02:58-06:00",
-            "deliveries":0,
-            "status":"pending"
-          }
-        ]
-      }
+      routes: [],
+      connection: null
     }
   },
+  async fetch() {
+    let result = await fetch(
+        'https://798c19a6-3f80-43ae-a6a3-4964fea68347.mock.pstmn.io/routes'
+    ).then(res => res.json());
+    this.routes = result.routes.map(e => {
+      let created_at = new Date('2011-04-11T10:20:30Z');
+      e.created_at = created_at.getDay() + " de " + MESES[created_at.getMonth()] + " del " + created_at.getFullYear();
+      e.started_at = created_at.getHours() + ":" + created_at.getMinutes();
+      return e;
+    });
+    var self = this;
+    this.connection = new WebSocket('ws://localhost:8080/')
+    this.connection.onopen = function() {
+      console.log("Connect to WebSocket")
+    };
+    this.connection.onmessage = function(event) {
+      let route = JSON.parse(event.data);
+      self.refresh(route);
+    };
+  },
+  methods: {
+    refresh(route) {
+      let foundIndex = this.routes.findIndex( e => e.id == route.route_id);
+      let new_router = this.routes[foundIndex];
+      new_router.status = route.status;
+      if (route.status == "onroute") {
+        new_router.deliveries = new_router.deliveries + 1;
+      } else {
+        let completed_at = new Date( route.completed_at);
+        new_router.ended_at = completed_at.getHours() + ":" + completed_at.getMinutes();
+      }
+      this.routes[foundIndex] = new_router;
+    },
+    getColor(status) {
+      return {
+        'blue': status == "pending" || status == "onroute",
+        'green': status == "completed"
+      }
+    },
+    getTranslate(status) {
+      if (status == "pending") {
+        return "Pendiente"
+      }
+      if (status == "onroute") {
+        return "En ruta"
+      }
+      if (status == "completed") {
+        return "Completada"
+      }
+    }
+  }
 })
 </script>
 
@@ -66,30 +88,14 @@ export default Vue.extend({
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-.maptag-bleft-blue {
+.maptag-card.blue {
   border-left-style: solid;
   border-left-width: 4px;
   border-left-color: #3b8bff;
 }
-.maptag-row {
-  display: inline-block;
-  padding: 8px 22px;
-}
-
-.maptag-row span {
-  color: #999999;
-  font-size: 0.85em;
-}
-p {
-  margin: 0px;
-}
-.tag-blue {
-  padding: 4px 12px;
-  color: #e2f2ff;
-  background-color: #3b8bff;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
-  font-size: 0.85em;
+.maptag-card.green {
+  border-left-style: solid;
+  border-left-width: 4px;
+  border-left-color: #52ba5d;
 }
 </style>
