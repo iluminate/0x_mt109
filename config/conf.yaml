@@ -1,0 +1,13 @@
+server:
+  contextPath:
+  port: 8080
+
+mysql:
+  host: "localhost"
+  port: "3307"
+  user: "tvseriesuser"
+  password: "36a0dd17"
+  database: "tvseriesdb"
+  connMaxLifetime: "0"
+  maxIdleConns: "5"
+  maxOpenConns: "5"
