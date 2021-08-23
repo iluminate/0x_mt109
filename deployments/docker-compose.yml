@@ -1,0 +1,9 @@
+version: '3.3'
+
+services:
+  db:
+    image: kevin24ec/tvseries_db:dev
+    container_name: tvseries_db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
